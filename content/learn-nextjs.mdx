@@ -1,0 +1,63 @@
+---
+title: LeanNextJS
+author: coya
+---
+
+# This is a markdown file
+
+<Newsletter/>
+
+Here is a List of item
+- Item one
+- Item two
+- Item three
+
+Here is a table
+
+```js
+const prettyCodeoptions ={
+    theme:'one-dark-pro',
+    onVisitLine(node){
+        if(node.children.length ===0){
+            node.children = [{type:'text','value':' '}]
+        }
+    },
+    onVisitHighlightedLine(node){
+        node.properties.className.push('highlighted')
+    },
+    onVisitHighlightedWord(node){
+        node.properties.className = ['highlight','word']
+    }
+}
+
+const rootDirectory = path.join(process.cwd(), 'content');
+
+const  components ={
+    h1:props =>(
+        <h1 {...props} className='text-cyan-600'>
+            {props.children}
+        </h1>
+    ),
+    Newsletter:Newsletter,
+}
+
+export async function getPostBySlug(slug){
+    console.log(slug)
+    
+    const realSlug = slug.replace(/\.mdx$/, ''); // removes the .mdx from the file name
+    const filePath = path.join(rootDirectory, `${realSlug}.mdx`);
+    const fileContent = fs.readFileSync(filePath, { encoding: "utf-8" });
+    const {content,frontmatter} =await compileMDX({
+        source:fileContent,
+        components,
+        options:{
+            parseFrontmatter:true,
+            mdxOptions:{
+                recmaPlugins:[[rehypePrettyCode,prettyCodeoptions]]
+            }
+        }
+    })
+    return [content,frontmatter]
+}
+
+```
